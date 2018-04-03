@@ -1,0 +1,5 @@
+# Multifile:
+*.mf
+
+# Mac OS
+*.DS_Store
