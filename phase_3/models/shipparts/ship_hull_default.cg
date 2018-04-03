@@ -1,0 +1,78 @@
+//Cg
+//
+//Cg profile arbvp1 arbfp1
+//
+// 
+
+void vshader(        float4   vtx_position  : POSITION,
+                     float4   vtx_normal    : NORMAL,
+                     float4   vtx_color     : COLOR,
+                     float2   vtx_texcoord0 : TEXCOORD0,
+                     float2   vtx_texcoord1 : TEXCOORD1,
+             out     float4   l_position    : POSITION,
+             out     float4   l_color0      : COLOR0,
+             out     float2   l_texcoord0   : TEXCOORD0,
+             out     float4   l_fogFactor   : TEXCOORD2,
+             out     float4   l_lightColor  : COLOR1,
+             out     float4   l_compositeColor : TEXCOORD4,
+             uniform float4 k_fogExpDensity,
+             uniform float4 k_alightColor,
+             uniform float4 k_dlightColor,
+             uniform float4 k_dlightVector,
+             uniform float4x4 trans_portalSlider_to_hull,
+             uniform float4x4 trans_model_to_hull,
+             uniform float4   k_fadeDist,
+             uniform float4x4 trans_model_to_view,
+             uniform float4x4 trans_model_to_world,
+             uniform float4x4 mat_modelproj)
+{  
+  l_position            = mul(mat_modelproj, vtx_position);
+  l_texcoord0           = vtx_texcoord0;
+  l_color0              = vtx_color;
+  l_compositeColor      = saturate(k_alightColor + k_dlightColor);
+
+  // Fog calculations
+  float4 viewSpacePos   = mul(trans_model_to_view,vtx_position);
+  l_fogFactor.x         = 1.0-exp(-1.0*(k_fogExpDensity.x*viewSpacePos.y));
+
+  // Lighting Calculations
+  float3 worldVtxNormal = normalize(mul((float3x3)trans_model_to_world,vtx_normal.xyz));
+  float3 dLightVec      = normalize(k_dlightVector.xyz);
+  float3 dIntensity     = saturate(-1.0 * dot(worldVtxNormal,dLightVec));
+  l_lightColor.xyz      = (k_alightColor.xyz + (dIntensity * k_dlightColor.xyz));
+
+  // Transparency wipe
+  float4 origin         =  {0.0,0.0,0.0,1.0};
+  float4 wallModelPos   =  mul(trans_portalSlider_to_hull,origin);
+  float4 vtxModelPos    =  mul(trans_model_to_hull,vtx_position);
+  float aScale          =  saturate((wallModelPos.y-vtxModelPos.y)*k_fadeDist.x);
+        aScale          = aScale * aScale;
+
+  l_lightColor.w        =  vtx_color.w * aScale;
+}
+
+void fshader(        float4    l_color0    : COLOR0,
+                     float2    l_texcoord0 : TEXCOORD0,
+                     sampler2D tex_0    : TEXUNIT0,
+                     float4    l_fogFactor  : TEXCOORD2,
+                     float4    l_lightColor : COLOR1,
+                     float4    l_compositeColor : TEXCOORD4,
+             uniform float4 k_fogColor : register(c2),
+             out     float4    o_color     : COLOR)
+{
+  float4 baseTexVal       = tex2D(tex_0,l_texcoord0);
+  float4 baseTexColor     = {1.0,1.0,1.0,1.0}; // TODO: grab the tex_0's texture stage color
+         baseTexColor     = baseTexVal * baseTexColor;
+
+  float4 blendColor       = l_color0 * l_lightColor;
+         blendColor.w     = l_color0.w;
+
+  float4 preFadeColor     = baseTexColor * blendColor;
+
+  float3 preFogColor      = lerp(l_compositeColor.xyz,preFadeColor.xyz,l_lightColor.w);
+
+  float3 postFogColor     = lerp(preFogColor,k_fogColor.xyz,l_fogFactor.x);
+         
+         o_color.xyz      = postFogColor;
+         o_color.w        = preFadeColor.w;
+}
