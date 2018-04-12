@@ -1,12 +1,8 @@
-from collections import OrderedDict
 import __builtin__,sys,imp,os,time,stat,string,re,getopt,fnmatch,threading,signal,shutil,platform,glob,getpass,signal,subprocess
 from panda3d.core import *
 from direct.showbase import Loader, ShowBase
 
-def colored(str, color):
-	return str
-
-base = ShowBase.ShowBase()
+__builtins__['base'] = ShowBase.ShowBase()
 
 __builtins__['loader'] = Loader.Loader(base)
 
@@ -14,7 +10,7 @@ SOURCE_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 phaseNames = ['phase_2', 'phase_3', 'phase_4', 'phase_5']
 
-print "Cleaned models will be output into the cleaned directory. This directory is ignored by Git via .gitignore.\n"
+print "Cleaned models will be output into the 'cleaned' directory. This directory is ignored by Git via .gitignore.\n"
 
 class ModelCleaner:
     def __init__(self):
@@ -59,14 +55,6 @@ class ModelCleaner:
             
             if not success:
                 print "Oh no! The model write failed!\n"
-            
-    def _run_command(self, cmd):
-        p = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr, shell=True)
-        v = p.wait()
-
-        if v != 0:
-            print colored('The following command returned non-zero value (%d): %s' % (v, cmd), 'red')
-            sys.exit(1)
             
 cleaner = ModelCleaner()
 for name in phaseNames:
