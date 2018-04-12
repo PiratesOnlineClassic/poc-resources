@@ -8,3 +8,9 @@ Library/
 
 # Mac OS
 *.DS_Store
+
+# Python
+*.pyc
+
+# Disney Nondownload
+phase_nondownload/
