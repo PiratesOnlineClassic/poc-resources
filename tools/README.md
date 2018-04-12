@@ -1,0 +1,1 @@
+Move the ModelCleaner.py and CleanModels.bat to the 'resources' folder root then move the files to the 'tools' folder after 'cleaning'.
