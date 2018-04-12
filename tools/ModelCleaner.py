@@ -14,7 +14,7 @@ SOURCE_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 phaseNames = ['phase_2', 'phase_3', 'phase_4', 'phase_5']
 
-print "Cleaned models with be output into the cleaned directory. This directory is ignored by Git via .gitignore.\n"
+print "Cleaned models will be output into the cleaned directory. This directory is ignored by Git via .gitignore.\n"
 
 class ModelCleaner:
     def __init__(self):
