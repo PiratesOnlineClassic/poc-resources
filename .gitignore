@@ -1,4 +1,8 @@
-# Multifile:
+# Cache
+cache/
+Library/
+
+# Multifile
 *.mf
 
 # Mac OS
