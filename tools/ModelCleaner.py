@@ -2,9 +2,9 @@ import __builtin__,sys,imp,os,time,stat,string,re,getopt,fnmatch,threading,signa
 from panda3d.core import *
 from direct.showbase import Loader, ShowBase
 
-__builtins__['base'] = ShowBase.ShowBase()
+__builtins__.base = ShowBase.ShowBase()
 
-__builtins__['loader'] = Loader.Loader(base)
+__builtins__.loader = Loader.Loader(base)
 
 SOURCE_ROOT = os.path.dirname(os.path.abspath(__file__))
 
@@ -34,44 +34,44 @@ class ModelCleaner:
             f = os.path.join(dir, f)
 
             if os.path.isdir(f):
-                self._recurse_dir(f) 
+                self._recurse_dir(f)
             elif not f.endswith('bam'):
                 continue
             elif f.endswith('bam'):
                 self.files.append(str(f))
             else:
                 continue
-        
+
     def process_modules(self):
         for file in self.files:
             try:
                 model = loader.loadModel(file)
-                model.clearModelNodes()	
+                model.clearModelNodes()
                 model.flattenStrong()
                 model.forceRecomputeBounds()
             except:
                 continue
-            
+
             file = os.path.join("cleaned\\", file)
-            
+
             file = str(file)
-            
+
             directory = os.path.dirname(file)
             if not os.path.exists(directory):
                 os.makedirs(directory)
-                
+
             if not os.path.exists(file):
                 open(file, 'w+').close()
-                
+
             path = Filename(file)
             #print path.getFullpath()
             path.setBinary()
             #success = model.writeBamFile(path)
             success = loader.saveModel(path, model)
-            
+
             if not success:
                 print "Oh no! The model write failed!\n"
-            
+
 cleaner = ModelCleaner()
 for name in phaseNames:
     cleaner._recurse_dir(name)
