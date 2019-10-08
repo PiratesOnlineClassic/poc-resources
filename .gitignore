@@ -1,0 +1,16 @@
+# Cache
+cache/
+cleaned/
+Library/
+
+# Multifile
+*.mf
+
+# Mac OS
+*.DS_Store
+
+# Python
+*.pyc
+
+# Disney Nondownload
+phase_nondownload/
